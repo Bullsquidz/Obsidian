@@ -1,0 +1,12 @@
+/home/dani/Desktop/sdlProject/SDL/build/CMakeFiles/SDL3-shared.dir
+/home/dani/Desktop/sdlProject/SDL/build/CMakeFiles/SDL3_test.dir
+/home/dani/Desktop/sdlProject/SDL/build/CMakeFiles/SDL_uclibc.dir
+/home/dani/Desktop/sdlProject/SDL/build/CMakeFiles/uninstall.dir
+/home/dani/Desktop/sdlProject/SDL/build/CMakeFiles/package.dir
+/home/dani/Desktop/sdlProject/SDL/build/CMakeFiles/package_source.dir
+/home/dani/Desktop/sdlProject/SDL/build/CMakeFiles/edit_cache.dir
+/home/dani/Desktop/sdlProject/SDL/build/CMakeFiles/rebuild_cache.dir
+/home/dani/Desktop/sdlProject/SDL/build/CMakeFiles/list_install_components.dir
+/home/dani/Desktop/sdlProject/SDL/build/CMakeFiles/install.dir
+/home/dani/Desktop/sdlProject/SDL/build/CMakeFiles/install/local.dir
+/home/dani/Desktop/sdlProject/SDL/build/CMakeFiles/install/strip.dir
