@@ -13,14 +13,21 @@ struct fvec2{
 		float y = 0;
 };
 
-inline constexpr double OBSIDIANPI = 3.14;
+inline constexpr double OBSIDIANPI = 3.14159;
+
+inline constexpr int eSize = 12;
+inline constexpr int hESize = 6;
+inline constexpr int cSize = 24;
+
+
+
+
+
 
 //TIMEWIZARD
 inline double deltaTime = 0;
-
 const int TARGET_FPS = 60;
 const double TARGET_FRAME_TIME = 1.0 / TARGET_FPS;
-
 class TimeWizard{
 	public:
 		Uint64 prevTime;

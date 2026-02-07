@@ -8,10 +8,16 @@ class Player{
 
 		public:
 				float speed = .5;
-				float r = OBSIDIANPI/2;
+				float r = -OBSIDIANPI/2;
+
+				vec2 inpt;
+
 				fvec2 vel;
 				fvec2 pos;
-				fvec2 dir;
+
+				fvec2 fdir;
+				fvec2 sdir;
+				
 				void input(SDL_Event& e);
 				void draw(SDL_Renderer* renderer);
 				void move();
