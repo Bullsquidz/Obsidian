@@ -1,7 +1,7 @@
 #ifndef OBSIDIAN_H
 #define OBSIDIAN_H
 
-const int ScreenWidth = 500, ScreenHeight = 500;
+const int ScreenWidth = 800, ScreenHeight = 600;
 
 struct vec2{
 		int x = 0;
@@ -10,14 +10,13 @@ struct vec2{
 
 struct fvec2{
 		float x = 0;
-		float y = 0;
+float y = 0;
 };
 
 inline constexpr double OBSIDIANPI = 3.14159;
 
-inline constexpr int eSize = 12;
-inline constexpr int hESize = 6;
-inline constexpr int cSize = 24;
+inline constexpr int cSize = 12;
+inline constexpr int hCSize = 6;
 
 
 

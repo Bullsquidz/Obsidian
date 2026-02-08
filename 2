@@ -96,10 +96,10 @@ void Player::vision(SDL_Renderer* renderer){
 		
 		float newPi = 1;//OBSIDIANPI/180;
 		for (float i = -OBSIDIANPI/3; i < OBSIDIANPI/3; i += OBSIDIANPI/180){
-				vec2 endPoint;
+				fvec2 endPoint;
 				for (float d = 0; d < renderDistance; d++){
-						endPoint.x = (std::cos( r +(i) * newPi) * (d * cSize) + pos.x) / cSize;
-						endPoint.y = (std::sin( r +(i) * newPi) * (d * cSize) + pos.y) / cSize;
+						endPoint.x = /*std::floor*/( (std::cos( r +(i) * newPi) * (d * cSize) + pos.x) / cSize);
+						endPoint.y = /*std::floor*/( (std::sin( r +(i) * newPi) * (d * cSize) + pos.y) / cSize);
 
 						if (demoMap[(int)endPoint.y][(int)endPoint.x] == 1){
 								//SDL_SetRenderDrawColor(renderer, 0xFF,0xFF,0xFF,0xFF);
@@ -114,11 +114,20 @@ void Player::vision(SDL_Renderer* renderer){
 
 		float projectPlaneLength = 6 * std::tan(FOV/2) * 2;
 
+		//SDL_RenderLine(renderer, 
+		//				sdir.x*10 - projectPlaneLength/2*cSize + fdir.x*10 + pos.x, 
+		//				fdir.y*10 + 6 + sdir.y*10 + pos.y, 
+		//				sdir.x*10 + projectPlaneLength/2*cSize + fdir.x*10 + pos.x, 
+		//				fdir.y*10 + 6 + sdir.y*10 + pos.y);
+
+
 		SDL_RenderLine(renderer, 
 						pos.x + fdir.x * 6 + sdir.x * -(projectPlaneLength/2*cSize), 
 						pos.y + fdir.y * 6 + sdir.y * -(projectPlaneLength/2*cSize), 
 						pos.x + fdir.x * 6 + sdir.x * (projectPlaneLength/2*cSize), 
 						pos.y + fdir.y * 6 + sdir.y * (projectPlaneLength/2*cSize)); 
+
+
 }
 
 

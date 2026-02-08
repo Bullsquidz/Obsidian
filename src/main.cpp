@@ -1,18 +1,15 @@
 #include <SDL3/SDL.h>
 #include <SDL3/SDL_main.h>
 #include <SDL3_image/SDL_image.h>
-#include <map>
-#include <string>
-#include "texture.h"
+
+#include "textureTown.h"
+#include "cellCity.h"
 #include "obsidian.h"
 #include "player.h"
+#include "map.h"
 
 SDL_Window *window = nullptr;
 SDL_Renderer *renderer = nullptr;
-
-std::map<std::string, Texture> textures{
-	{ "Wall", Texture("wall.png") }
-};
 
 
 
@@ -27,24 +24,6 @@ bool init(){
 	}
 	return true;	
 }
-
-bool initTexture(){
-		for( auto& entry : textures){
-				if (!entry.second.loadFromFile(renderer)){
-						SDL_Log("Texture {%s} failed to load!\n", entry.first.c_str());
-						return false;
-				}
-		}
-
-		return true;
-}
-
-void desTexture(){
-		for (auto& entry : textures){
-				entry.second.destroyTexture();
-		}
-}
-
 void close(){
 	SDL_DestroyRenderer(renderer);
 	renderer = nullptr;
@@ -63,7 +42,10 @@ int main(){
 				return 1;
 		}
 
-		if (!initTexture())
+		if (!initTexture(renderer))
+				return 2;
+
+		if (!initCells())
 				return 2;
 
 		Player player;
@@ -90,7 +72,12 @@ int main(){
 				SDL_SetRenderDrawColor(renderer, 20, 50, 100, 255);
 				SDL_RenderClear(renderer);
 
+				//2D DRAW
+				drawMap(renderer);
 				player.draw(renderer);
+
+				//RAYCASTER
+				player.vision(renderer);
 
 				SDL_RenderPresent(renderer);
 				timeWizard.frameCap();

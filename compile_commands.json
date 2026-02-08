@@ -1,5 +1,47 @@
 [
   {
+    "file": "src/cell/cell.cpp",
+    "arguments": [
+      "g++",
+      "src/cell/cell.cpp",
+      "-o",
+      "a",
+      "-Isrc",
+      "-Isrc/cell",
+      "-Isrc/Map",
+      "-Isrc/texture",
+      "-Isrc/Player",
+      "-Isrc/base",
+      "-Ivendor/SDL3/include",
+      "-Ivendor/SDL3_image/include",
+      "-o",
+      "a"
+    ],
+    "directory": "/home/dani/Desktop/Obsidian",
+    "output": "a"
+  },
+  {
+    "file": "src/cell/cellCity.cpp",
+    "arguments": [
+      "g++",
+      "src/cell/cellCity.cpp",
+      "-o",
+      "a",
+      "-Isrc",
+      "-Isrc/cell",
+      "-Isrc/Map",
+      "-Isrc/texture",
+      "-Isrc/Player",
+      "-Isrc/base",
+      "-Ivendor/SDL3/include",
+      "-Ivendor/SDL3_image/include",
+      "-o",
+      "a"
+    ],
+    "directory": "/home/dani/Desktop/Obsidian",
+    "output": "a"
+  },
+  {
     "file": "src/main.cpp",
     "arguments": [
       "g++",
@@ -7,6 +49,28 @@
       "-o",
       "a",
       "-Isrc",
+      "-Isrc/cell",
+      "-Isrc/Map",
+      "-Isrc/texture",
+      "-Isrc/Player",
+      "-Isrc/base",
+      "-Ivendor/SDL3/include",
+      "-Ivendor/SDL3_image/include",
+      "-o",
+      "a"
+    ],
+    "directory": "/home/dani/Desktop/Obsidian",
+    "output": "a"
+  },
+  {
+    "file": "src/texture/textureTown.cpp",
+    "arguments": [
+      "g++",
+      "src/texture/textureTown.cpp",
+      "-o",
+      "a",
+      "-Isrc",
+      "-Isrc/cell",
       "-Isrc/Map",
       "-Isrc/texture",
       "-Isrc/Player",
@@ -27,6 +91,7 @@
       "-o",
       "a",
       "-Isrc",
+      "-Isrc/cell",
       "-Isrc/Map",
       "-Isrc/texture",
       "-Isrc/Player",
@@ -47,6 +112,7 @@
       "-o",
       "a",
       "-Isrc",
+      "-Isrc/cell",
       "-Isrc/Map",
       "-Isrc/texture",
       "-Isrc/Player",

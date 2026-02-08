@@ -1,19 +1,12 @@
 #ifndef MAP_H
 #define MAP_H
 
-int MAPSIZE = 10;
+#include<SDL3/SDL.h>
+#include "cellCity.h"
 
-int DemoMap[MAPSIZE][MAPSIZE] = {
-		(1,1,1,1,1,1,1,1,1,1)
-		(1,0,0,0,0,0,0,0,0,1)
-		(1,0,0,0,0,0,0,0,0,1)
-		(1,0,0,0,0,0,0,0,0,1)
-		(1,0,0,0,0,0,0,0,0,1)
-		(1,0,0,0,0,0,0,0,0,1)
-		(1,0,0,0,0,0,0,0,0,1)
-		(1,0,0,0,0,0,0,0,0,1)
-		(1,0,0,0,0,0,0,0,0,1)
-		(1,1,1,1,1,1,1,1,1,1)
-};
+const int MAPSIZE = 42;
 
+extern int demoMap[MAPSIZE][MAPSIZE];
+
+void drawMap(SDL_Renderer* renderer);
 #endif

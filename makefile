@@ -13,3 +13,8 @@ LIBS = -L$(VNDR)/SDL3/lib			-lSDL3 \
 all:
 	g++ $(SRC) -o a $(INCS) $(LIBS) -o a
 
+clean:
+	rm -f *.o
+	rm -f src/**/*.o
+	rm -f a
+	make

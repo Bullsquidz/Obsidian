@@ -6,6 +6,7 @@ Texture::Texture(std::string path){
 	height = 0;
 	this->path = path;
 };
+SDL_Texture* Texture::getTexture(){ return texture; }
 
 Texture::~Texture(){
 	destroyTexture();

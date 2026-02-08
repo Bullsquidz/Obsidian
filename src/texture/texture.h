@@ -16,7 +16,7 @@ class Texture{
 		int getWidth();
 		int getHeight();
 		bool isLoaded();
-		SDL_Texture* getTexture(){ return texture; };
+		SDL_Texture* getTexture();
 
 	private:
 		SDL_Texture* texture;
