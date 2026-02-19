@@ -1,5 +1,6 @@
 #include "player.h"
 #include "obsidian.h"
+#include <SDL3/SDL_keycode.h>
 #include <SDL3/SDL_rect.h>
 #include <SDL3/SDL_render.h>
 #include <cmath>
@@ -11,6 +12,8 @@ void Player::input(SDL_Event& e){
 						case SDLK_S: inpt.y -= 1; break;
 						case SDLK_A: inpt.x -= 1; break;
 						case SDLK_D: inpt.x += 1; break;
+						case SDLK_LEFTBRACKET: renderDistance--; SDL_Log("RD: %d\n", renderDistance); break;
+						case SDLK_RIGHTBRACKET: renderDistance++; SDL_Log("RD: %d\n", renderDistance); break;
 				}
 		}else if (e.type == SDL_EVENT_KEY_UP && e.key.repeat == 0){
 				switch(e.key.key){	
@@ -42,6 +45,7 @@ void Player::input(SDL_Event& e){
 		//SDL_Log("Position  <%d, %d>\n", pos.x, pos.y);
 		//SDL_Log("T.Position  <%d, %d>\n", tPos.x, tPos.y);
 		//SDL_Log("Direction <%f, %f>\n", fdir.x, fdir.y);
+		//SDL_Log("Rotation <%f>", r);
 		//SDL_Log("\n\n");
 }
 
@@ -59,18 +63,21 @@ void Player::move(){
 
 void Player::draw(SDL_Renderer* renderer){
 		SDL_FRect rect{
-				static_cast<float>(pos.x),
-				static_cast<float>(pos.y),
+				static_cast<float>(pos.x - hCSize),
+				static_cast<float>(pos.y - hCSize),
 				static_cast<float>(cSize),
 				static_cast<float>(cSize)
 		};
 
 		SDL_SetRenderDrawColor(renderer, 0xFF, 0xFF, 0xFF, 0xFF);
-		if (texture == nullptr)
-				SDL_RenderFillRect(renderer, &rect);
-		else
-				texture->render(renderer, pos.x - hCSize, pos.y - hCSize, cSize, cSize);
+		//if (texture == nullptr)
+				SDL_RenderRect(renderer, &rect);
+		//else
+		//		texture->render(renderer, pos.x - hCSize, pos.y - hCSize, cSize, cSize);
 
+		
+		//DIRECTION DEBUG
+		/*
 		SDL_SetRenderDrawColor(renderer, 0x00, 0xFF, 0x00, 0xFF);
 		SDL_RenderLine(renderer, 
 						pos.x, 
@@ -85,40 +92,61 @@ void Player::draw(SDL_Renderer* renderer){
 						pos.y, 
 						pos.x + (sdir.x * 10), 
 						pos.y + (sdir.y * 10));
-
+		*/
 
 }
 
 
 void Player::vision(SDL_Renderer* renderer){
-
-		SDL_SetRenderDrawColor(renderer, 0xFF,0xFF,0xFF,0xFF);
 		
-		float newPi = 1;//OBSIDIANPI/180;
-		for (float i = -OBSIDIANPI/3; i < OBSIDIANPI/3; i += OBSIDIANPI/180){
-				vec2 endPoint;
-				for (float d = 0; d < renderDistance; d++){
-						endPoint.x = (std::cos( r +(i) * newPi) * (d * cSize) + pos.x) / cSize;
-						endPoint.y = (std::sin( r +(i) * newPi) * (d * cSize) + pos.y) / cSize;
+		float HFV = FOV / 2.0;		
+		double INCTR = OBSIDIANPI/180;
 
-						if (demoMap[(int)endPoint.y][(int)endPoint.x] == 1){
-								//SDL_SetRenderDrawColor(renderer, 0xFF,0xFF,0xFF,0xFF);
-								SDL_RenderLine(renderer, pos.x, pos.y, endPoint.x * cSize, endPoint.y * cSize);
+		//for (float i = r - HFV * INCTR; i < r + HFV * INCTR; i += INCTR){
+		for (float i = r; i < r + 1; i ++){
+				vec2 endPoint;
+				vec2 snappedEndPoint;
+				bool stop = false;
+				for (int d = 1; d < renderDistance + 1; d++){
+	
+						endPoint.x = std::cos(i) * (cSize * d) + pos.x;
+						endPoint.y = std::sin(i) * (cSize * d ) + pos.y;
+
+
+						snappedEndPoint.y = (int)(endPoint.y / cSize) * cSize;
+						if (demoMap[snappedEndPoint.y/cSize][(int)endPoint.x/cSize] == 1){
+								SDL_SetRenderDrawColor(renderer, 0xFF, 0xFF, 0xFF, 0xFF);
+								SDL_RenderLine(renderer, pos.x, pos.y, endPoint.x, snappedEndPoint.y);
 								break;
-						}//else{
-						//		SDL_SetRenderDrawColor(renderer, 0x55,0x55,0x55,0xFF);
-						//		SDL_RenderLine(renderer, pos.x, pos.y, endPoint.x * cSize, endPoint.y * cSize);
-						//}
+						}else{
+								SDL_SetRenderDrawColor(renderer, 0xFF, 0x00, 0x00, 0xFF);
+								SDL_RenderLine(renderer, pos.x, pos.y, endPoint.x, endPoint.y);
+						}
+						
+
+						/*
+						endPoint.x = std::cos(i) * (cSize * d) + pos.x;
+						endPoint.y = std::sin(i) * (cSize * d ) + pos.y;
+
+						snappedEndPoint.x = (int)((endPoint.x) / cSize) * cSize;
+						snappedEndPoint.y = (int)((endPoint.y) / cSize) * cSize;	
+						
+						if (demoMap[(int)snappedEndPoint.y / cSize][(int)snappedEndPoint.x / cSize] == 1){
+								SDL_SetRenderDrawColor(renderer, 0xFF, 0x00, 0x00, 0xFF);
+								SDL_RenderLine(renderer, pos.x, pos.y, snappedEndPoint.x, snappedEndPoint.y);
+								stop = true;
+								break;
+						}*/
 				}
+				
+				/*if (!stop){
+						SDL_SetRenderDrawColor(renderer, 0xFF, 0xFF, 0xFF, 0xFF);
+						SDL_RenderLine(renderer, pos.x, pos.y, endPoint.x, endPoint.y);
+		
+				}*/
 		}
 
-		float projectPlaneLength = 6 * std::tan(FOV/2) * 2;
 
-		SDL_RenderLine(renderer, 
-						pos.x + fdir.x * 6 + sdir.x * -(projectPlaneLength/2*cSize), 
-						pos.y + fdir.y * 6 + sdir.y * -(projectPlaneLength/2*cSize), 
-						pos.x + fdir.x * 6 + sdir.x * (projectPlaneLength/2*cSize), 
-						pos.y + fdir.y * 6 + sdir.y * (projectPlaneLength/2*cSize)); 
 }
 
 
