@@ -14,9 +14,10 @@ float y = 0;
 };
 
 inline constexpr double OBSIDIANPI = 3.14159;
-
-inline constexpr int cSize = 12;
-inline constexpr int hCSize = 6;
+inline constexpr double OBSIDIONEPSILON = 0.00001;
+const int cScale = 2;
+inline constexpr int cSize = 12 * cScale;
+inline constexpr int hCSize = cSize / 2;
 
 
 

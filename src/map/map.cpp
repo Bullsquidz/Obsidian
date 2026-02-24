@@ -1,6 +1,6 @@
 #include "map.h"
 
-int demoMap[MAPSIZE][MAPSIZE] = {
+/*int demoMap[MAPSIZE][MAPSIZE] = {
 		{1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1},
 		{1,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,1},
 		{1,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,1},
@@ -44,15 +44,30 @@ int demoMap[MAPSIZE][MAPSIZE] = {
 		{1,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,1},
 		{1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1},
 };
+*/
 
+int demoMap[MAPSIZE][MAPSIZE]={
+		{1,1,1,1,1,1,1,1,1,1,1,1},
+		{1,0,0,0,0,0,0,0,0,0,0,1},
+		{1,0,0,0,0,0,0,1,1,1,0,1},
+		{1,0,0,0,0,0,0,0,1,0,0,1},
+		{1,0,0,0,0,0,1,1,1,0,0,1},
+		{1,1,1,1,0,0,0,0,0,0,0,1},
+		{1,0,0,1,0,0,0,0,0,0,0,1},
+		{1,0,0,1,0,0,0,0,0,0,0,1},
+		{1,0,0,0,0,0,0,0,0,0,0,1},
+		{1,0,0,1,0,0,0,0,0,0,0,1},
+		{1,0,0,1,0,0,0,0,0,0,0,1},
+		{1,1,1,1,1,1,1,1,1,1,1,1}
+};
 
 void drawMap(SDL_Renderer* renderer){
 		for (int y = 0; y < MAPSIZE; y++){
 				for (int x = 0; x < MAPSIZE; x++){
 							if (demoMap[y][x] == 1){
 								cells["Wall"].draw(renderer,
-												x * cSize,
-												y * cSize);
+												(x * cSize) + MAPOFFSET,
+												(y * cSize) + MAPOFFSET);
 							}
 				}
 		}
@@ -60,14 +75,14 @@ void drawMap(SDL_Renderer* renderer){
 		SDL_SetRenderDrawColor(renderer, 0x66, 0x66, 0x66, 0xFF);
 		for (int y = 0; y < MAPSIZE; y++){
 
-				int yy = y*cSize;
+				int yy = (y * cSize);
 				SDL_RenderLine(renderer, 
 								0, 
 								yy, 
 								MAPSIZE * cSize,
 								yy);
 		}
-
+		
 		for (int x = 0; x < MAPSIZE; x++){
 				int xx = x * cSize;
 				SDL_RenderLine(renderer,

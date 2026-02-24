@@ -1,7 +1,7 @@
 #include "textureTown.h"
 
 std::map<std::string, Texture> textures{
-		{ "Wall", 	Texture("wall.png") 	},
+		{ "Wall", 	Texture("test.png") 	},
 		{ "Player",	Texture("player.png")	}
 };
 

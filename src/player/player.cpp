@@ -29,10 +29,10 @@ void Player::input(SDL_Event& e){
 				case SDLK_E: r += OBSIDIANPI/18; break;
 				case SDLK_Q: r -= OBSIDIANPI/18; break;
 		}
-		if ( r >= (2 * OBSIDIANPI + OBSIDIANPI/2) )
-				r =  (-2 * OBSIDIANPI + OBSIDIANPI/2);
-		else if ( r <= (-2 * OBSIDIANPI + OBSIDIANPI/2) )
-				r = (2 * OBSIDIANPI + OBSIDIANPI/2);
+		if ( r > (2 * OBSIDIANPI) )
+				r =  0;
+		else if ( r < 0 )
+				r = 2*OBSIDIANPI;
 
 
 
@@ -43,7 +43,7 @@ void Player::input(SDL_Event& e){
 
 		//SDL_Log("Input  <%d, %d>\n", pos.x, pos.y);
 		//SDL_Log("Position  <%d, %d>\n", pos.x, pos.y);
-		//SDL_Log("T.Position  <%d, %d>\n", tPos.x, tPos.y);
+		//SDL_Log("T.Position(OnGrid) <%d, %d>\n", tPos.x/cSize, tPos.y/cSize);
 		//SDL_Log("Direction <%f, %f>\n", fdir.x, fdir.y);
 		//SDL_Log("Rotation <%f>", r);
 		//SDL_Log("\n\n");
@@ -54,19 +54,23 @@ void Player::move(){
 		if (inpt.x != 0 && inpt.y != 0)
 				normalize = std::sqrt( std::pow(inpt.x,2) + std::pow(inpt.y,2) );
 
-		pos.x += (sdir.x * (inpt.x/normalize)  + fdir.x * (inpt.y/normalize)) * (deltaTime/2) * speed;
-		pos.y += (fdir.y * (inpt.y/normalize)  + sdir.y * (inpt.x/normalize)) * (deltaTime/2) * speed;
+		pos.x += (sdir.x * (inpt.x/normalize)  + fdir.x * (inpt.y/normalize)) * (deltaTime/2) * speed * cScale;
+		pos.y += (fdir.y * (inpt.y/normalize)  + sdir.y * (inpt.x/normalize)) * (deltaTime/2) * speed * cScale;
 
-		tPos.x = std::floor(pos.x / cSize)* cSize;
+		tPos.x = std::floor(pos.x / cSize) * cSize;
 		tPos.y = std::floor(pos.y / cSize) * cSize;
+
+
 }
 
+int playerBoxSize = hCSize;
+int halfPlayerBoxSize = playerBoxSize/2;
 void Player::draw(SDL_Renderer* renderer){
 		SDL_FRect rect{
-				static_cast<float>(pos.x - hCSize),
-				static_cast<float>(pos.y - hCSize),
-				static_cast<float>(cSize),
-				static_cast<float>(cSize)
+				static_cast<float>(pos.x - halfPlayerBoxSize),
+				static_cast<float>(pos.y - halfPlayerBoxSize),
+				static_cast<float>(playerBoxSize),
+				static_cast<float>(playerBoxSize)
 		};
 
 		SDL_SetRenderDrawColor(renderer, 0xFF, 0xFF, 0xFF, 0xFF);
@@ -77,7 +81,7 @@ void Player::draw(SDL_Renderer* renderer){
 
 		
 		//DIRECTION DEBUG
-		/*
+		
 		SDL_SetRenderDrawColor(renderer, 0x00, 0xFF, 0x00, 0xFF);
 		SDL_RenderLine(renderer, 
 						pos.x, 
@@ -92,7 +96,7 @@ void Player::draw(SDL_Renderer* renderer){
 						pos.y, 
 						pos.x + (sdir.x * 10), 
 						pos.y + (sdir.y * 10));
-		*/
+		
 
 }
 
@@ -104,25 +108,87 @@ void Player::vision(SDL_Renderer* renderer){
 
 		//for (float i = r - HFV * INCTR; i < r + HFV * INCTR; i += INCTR){
 		for (float i = r; i < r + 1; i ++){
-				vec2 endPoint;
-				vec2 snappedEndPoint;
-				bool stop = false;
-				for (int d = 1; d < renderDistance + 1; d++){
-	
-						endPoint.x = std::cos(i) * (cSize * d) + pos.x;
-						endPoint.y = std::sin(i) * (cSize * d ) + pos.y;
+				fvec2 prevRayPoint;
+				fvec2 rayPoint;
+				//rayPoint.x = pos.x;
+				//rayPoint.y = pos.y;
+				
+				vec2 prevCellPoint;
+				vec2 cellPoint;
+
+				SDL_SetRenderDrawColor(renderer, 
+										0x22, 
+										0xFF - (0x22), 
+										0x00, 
+										0xFF);
+				
+				if (r > OBSIDIONEPSILON && r < OBSIDIANPI - OBSIDIONEPSILON) //ray up
+						cellPoint.y = (int)(pos.y / cSize) * cSize + cSize;
+				else if (r > OBSIDIANPI + OBSIDIONEPSILON && r < 2 * OBSIDIANPI - OBSIDIONEPSILON)
+						cellPoint.y = (int)(pos.y / cSize) * cSize - cSize;
+
+				cellPoint.x = pos.x + (pos.y - cellPoint.y)/tan(r);
+
+				SDL_RenderLine(renderer, 
+										pos.x, pos.y, 
+										rayPoint.x, rayPoint.y);
+
+				
+				//for (int d = 1; d < renderDistance + 1; d++){
+
+						//prevRayPoint.x = rayPoint.x;
+						//prevRayPoint.y = rayPoint.y;
+
+						//rayPoint.x = std::cos(i) * (cSize * d) + pos.x;
+						//rayPoint.y = std::sin(i) * (cSize * d) + pos.y;
+
+						/*SDL_SetRenderDrawColor(renderer, 
+										0x22 * d, 
+										0xFF - (0x22 * d), 
+										0x00, 
+										0xFF);
+
+						SDL_RenderLine(renderer, 
+										prevRayPoint.x, prevRayPoint.y, 
+										rayPoint.x, rayPoint.y);
+*/
+
+						//cellPoint.x = (int)(rayPoint.x / cSize);
+						//cellPoint.y = (int)(rayPoint.y / cSize);
+
+						//if (demoMap[cellPoint.x][cellPoint.y] == 1){
 
 
+/*
 						snappedEndPoint.y = (int)(endPoint.y / cSize) * cSize;
 						if (demoMap[snappedEndPoint.y/cSize][(int)endPoint.x/cSize] == 1){
 								SDL_SetRenderDrawColor(renderer, 0xFF, 0xFF, 0xFF, 0xFF);
-								SDL_RenderLine(renderer, pos.x, pos.y, endPoint.x, snappedEndPoint.y);
+								SDL_RenderLine(renderer, pos.x, pos.y, endPoint.x, endPoint.y);
 								break;
 						}else{
 								SDL_SetRenderDrawColor(renderer, 0xFF, 0x00, 0x00, 0xFF);
 								SDL_RenderLine(renderer, pos.x, pos.y, endPoint.x, endPoint.y);
 						}
 						
+*/
+						/*if (std::tan(r) != 0){//UP N DOWN
+						
+						}*/
+/*
+						if ((r > OBSIDIONEPSILON && r < OBSIDIANPI - OBSIDIONEPSILON) ||
+								(r > OBSIDIANPI + OBSIDIONEPSILON && r < 2 * OBSIDIANPI - OBSIDIONEPSILON) ){ //UP N DOWN
+
+
+						}
+
+*/
+
+
+
+
+
+
+
 
 						/*
 						endPoint.x = std::cos(i) * (cSize * d) + pos.x;
@@ -137,7 +203,7 @@ void Player::vision(SDL_Renderer* renderer){
 								stop = true;
 								break;
 						}*/
-				}
+				//}
 				
 				/*if (!stop){
 						SDL_SetRenderDrawColor(renderer, 0xFF, 0xFF, 0xFF, 0xFF);

@@ -69,7 +69,7 @@ int main(){
 				player.move();
 
 				//Draw
-				SDL_SetRenderDrawColor(renderer, 20, 50, 100, 255);
+				SDL_SetRenderDrawColor(renderer, 0, 0, 0, 255);
 				SDL_RenderClear(renderer);
 
 				//2D DRAW
