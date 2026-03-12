@@ -1,5 +1,6 @@
-#include "player.h"
-#include "obsidian.h"
+#include "player/player.h"
+#include "map/map.h"
+#include "base/obsidian.h"
 #include <SDL3/SDL_keycode.h>
 #include <SDL3/SDL_rect.h>
 #include <SDL3/SDL_render.h>
@@ -26,13 +27,13 @@ void Player::input(SDL_Event& e){
 
 		//ORIENTATION
 		switch(e.key.key){
-				case SDLK_E: r += OBSIDIANPI/18; break;
-				case SDLK_Q: r -= OBSIDIANPI/18; break;
+				case SDLK_E: r += OPI/18; break;
+				case SDLK_Q: r -= OPI/18; break;
 		}
-		if ( r > (2 * OBSIDIANPI) )
+		if ( r > (2 * OPI) )
 				r =  0;
 		else if ( r < 0 )
-				r = 2*OBSIDIANPI;
+				r = 2*OPI;
 
 
 
@@ -81,7 +82,7 @@ void Player::draw(SDL_Renderer* renderer){
 
 		
 		//DIRECTION DEBUG
-		
+		/*
 		SDL_SetRenderDrawColor(renderer, 0x00, 0xFF, 0x00, 0xFF);
 		SDL_RenderLine(renderer, 
 						pos.x, 
@@ -97,14 +98,14 @@ void Player::draw(SDL_Renderer* renderer){
 						pos.x + (sdir.x * 10), 
 						pos.y + (sdir.y * 10));
 		
-
+		*/
 }
 
 
 void Player::vision(SDL_Renderer* renderer){
 		
 		float HFV = FOV / 2.0;		
-		double INCTR = OBSIDIANPI/180;
+		double INCTR = OPI/180;
 
 		//for (float i = r - HFV * INCTR; i < r + HFV * INCTR; i += INCTR){
 		for (float i = r; i < r + 1; i ++){
@@ -114,26 +115,71 @@ void Player::vision(SDL_Renderer* renderer){
 				//rayPoint.y = pos.y;
 				
 				vec2 prevCellPoint;
-				vec2 cellPoint;
+				fvec2 cellPoint;
 
 				SDL_SetRenderDrawColor(renderer, 
-										0x22, 
-										0xFF - (0x22), 
+										0xFF, 
+										0x00, 
 										0x00, 
 										0xFF);
-				
-				if (r > OBSIDIONEPSILON && r < OBSIDIANPI - OBSIDIONEPSILON) //ray up
-						cellPoint.y = (int)(pos.y / cSize) * cSize + cSize;
-				else if (r > OBSIDIANPI + OBSIDIONEPSILON && r < 2 * OBSIDIANPI - OBSIDIONEPSILON)
-						cellPoint.y = (int)(pos.y / cSize) * cSize - cSize;
+				int Ya = 0;
+				if (r > OEPSI && r < OPI - OEPSI) {//Ray down
+						Ya = cSize;
+						cellPoint.y = (int)(pos.y / cSize) * cSize + cSize + OEPSI;
+				}
+				else if (r > OPI + OEPSI && r < 2 * OPI - OEPSI) {
+						Ya = -cSize;
+						cellPoint.y = (int)(pos.y / cSize) * cSize - OEPSI;
+				} else{
+						continue;
+				}
 
-				cellPoint.x = pos.x + (pos.y - cellPoint.y)/tan(r);
+				cellPoint.x = pos.x + -(pos.y - cellPoint.y)/tan(r);
+				float Xa = Ya /tan(r);
+
+				SDL_Log("%f,%f", cellPoint.x, cellPoint.y);
+				if (cellPoint.x < 0) {cellPoint.x = 0;}
+				//else if (cellPoint.x > MAPSIZE-1) cellPoint.x = MAPSIZE-1;
+
+				//if (cellPoint.y < 0) cellPoint.y = 0;
+				//else if (cellPoint.y > MAPSIZE-1) cellPoint.y = MAPSIZE-1;
+
+				if (demoMap[(int)cellPoint.y / cSize][(int)cellPoint.x / cSize] == 1) {
+						SDL_SetRenderDrawColor(renderer, 0x00, 0xCC, 0x00, 0xFF);
+
+						SDL_RenderLine(renderer, 
+										pos.x, pos.y, 
+										cellPoint.x, cellPoint.y);
+
+						continue;
+				}
+				
+				/*
+				for (int d = 1; d< renderDistance + 1; d++){
+						cellPoint.x += Xa;
+						cellPoint.y += Ya;
+
+						if (cellPoint.x < 0) cellPoint.x = 0;
+						else if (cellPoint.x > MAPSIZE-1) cellPoint.x = MAPSIZE-1;
+
+						if (cellPoint.y < 0) cellPoint.y = 0;
+						else if (cellPoint.y > MAPSIZE-1) cellPoint.y = MAPSIZE-1;
+		
+						if (demoMap[(int)cellPoint.y / cSize][(int)cellPoint.x / cSize] == 1) {
+								SDL_SetRenderDrawColor(renderer, 0x00, 0xCC, 0x00, 0xFF);
+								break;
+						}
+				}
+
+
 
 				SDL_RenderLine(renderer, 
 										pos.x, pos.y, 
-										rayPoint.x, rayPoint.y);
+										cellPoint.x, cellPoint.y);
+				SDL_Log("%d,%d", (int)cellPoint.x / cSize, (int)cellPoint.y / cSize);
+				*/
 
-				
+
 				//for (int d = 1; d < renderDistance + 1; d++){
 
 						//prevRayPoint.x = rayPoint.x;

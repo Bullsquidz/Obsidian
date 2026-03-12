@@ -10,7 +10,7 @@ class Player{
 
 		public:
 				float speed = .10;
-				float r = -OBSIDIANPI/2;
+				float r = -OPI/2;
 				int renderDistance = 1;
 				int FOV = 120;
 
