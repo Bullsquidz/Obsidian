@@ -1,6 +1,8 @@
 #include "player/player.h"
 #include "map/map.h"
 #include "base/obsidian.h"
+#include "base/timeWizard.h"
+
 #include <SDL3/SDL_keycode.h>
 #include <SDL3/SDL_rect.h>
 #include <SDL3/SDL_render.h>
@@ -15,6 +17,8 @@ void Player::input(SDL_Event& e){
 						case SDLK_D: inpt.x += 1; break;
 						case SDLK_LEFTBRACKET: renderDistance--; SDL_Log("RD: %d\n", renderDistance); break;
 						case SDLK_RIGHTBRACKET: renderDistance++; SDL_Log("RD: %d\n", renderDistance); break;
+						case SDLK_MINUS: FOV -= 10; break;
+						case SDLK_PLUS: FOV += 10; break;
 				}
 		}else if (e.type == SDL_EVENT_KEY_UP && e.key.repeat == 0){
 				switch(e.key.key){	
@@ -82,14 +86,13 @@ void Player::draw(SDL_Renderer* renderer){
 
 		
 		//DIRECTION DEBUG
-		/*
+	/*	
 		SDL_SetRenderDrawColor(renderer, 0x00, 0xFF, 0x00, 0xFF);
 		SDL_RenderLine(renderer, 
 						pos.x, 
 						pos.y, 
 						pos.x + (fdir.x * 20), 
 						pos.y + (fdir.y * 20));
-
 
 		SDL_SetRenderDrawColor(renderer, 0xFF, 0x00, 0x00, 0xFF);
 		SDL_RenderLine(renderer, 
@@ -101,161 +104,113 @@ void Player::draw(SDL_Renderer* renderer){
 		*/
 }
 
+int MAXMAPBOUND = (MAPSIZE-1)*cSize;
+void Player::outOfBoundsVision(fvec2& cellPoint) {
+				if (cellPoint.x < 0) cellPoint.x = 0;
+				else if (cellPoint.x > MAXMAPBOUND)  cellPoint.x = MAXMAPBOUND;
+
+				if (cellPoint.y < 0) cellPoint.y = 0;
+				else if (cellPoint.y > MAXMAPBOUND) cellPoint.y = MAXMAPBOUND;
+}
+
+bool Player::checkVision(fvec2& cellPoint, SDL_Renderer* renderer){
+		if (demoMap[(int)cellPoint.y / cSize][(int)cellPoint.x / cSize] == 1){
+				return true;
+		}
+		return false;
+}
 
 void Player::vision(SDL_Renderer* renderer){
 		
 		float HFV = FOV / 2.0;		
 		double INCTR = OPI/180;
+		
+		//for (float i = r; i < r+1; i++){
+		for (float i = r - HFV * INCTR; i < r + HFV * INCTR; i += INCTR){
+				fvec2 hCellPoint; hCellPoint.x = -1; hCellPoint.y = -1;
+				bool hFound = false;
+				fvec2 vCellPoint; vCellPoint.x = -1; vCellPoint.y = -1;
+				bool vFound = false;
 
-		//for (float i = r - HFV * INCTR; i < r + HFV * INCTR; i += INCTR){
-		for (float i = r; i < r + 1; i ++){
-				fvec2 prevRayPoint;
-				fvec2 rayPoint;
-				//rayPoint.x = pos.x;
-				//rayPoint.y = pos.y;
-				
-				vec2 prevCellPoint;
-				fvec2 cellPoint;
+				float iAngle = i;
+				if (iAngle < 0) iAngle += 2*OPI;
+				if (iAngle > 2*OPI) iAngle -= 2*OPI;
 
-				SDL_SetRenderDrawColor(renderer, 
-										0xFF, 
-										0x00, 
-										0x00, 
-										0xFF);
-				int Ya = 0;
-				if (r > OEPSI && r < OPI - OEPSI) {//Ray down
+
+				//HORIZONTOLLYYY
+				//
+				float Ya = 0;
+				if (iAngle > 0 && iAngle < OPI) {//Ray down
 						Ya = cSize;
-						cellPoint.y = (int)(pos.y / cSize) * cSize + cSize + OEPSI;
+						hCellPoint.y = (int)(pos.y / cSize) * cSize + cSize + OEPSI;
 				}
-				else if (r > OPI + OEPSI && r < 2 * OPI - OEPSI) {
+				else if (iAngle > OPI && iAngle < 2 * OPI) {
 						Ya = -cSize;
-						cellPoint.y = (int)(pos.y / cSize) * cSize - OEPSI;
-				} else{
-						continue;
-				}
+						hCellPoint.y = (int)(pos.y / cSize) * cSize - OEPSI;
+				} else continue;
 
-				cellPoint.x = pos.x + -(pos.y - cellPoint.y)/tan(r);
-				float Xa = Ya /tan(r);
+				hCellPoint.x = pos.x + ( hCellPoint.y - pos.y)/tan(iAngle);
+				float Xa = Ya /tan(iAngle);
 
-				SDL_Log("%f,%f", cellPoint.x, cellPoint.y);
-				if (cellPoint.x < 0) {cellPoint.x = 0;}
-				//else if (cellPoint.x > MAPSIZE-1) cellPoint.x = MAPSIZE-1;
-
-				//if (cellPoint.y < 0) cellPoint.y = 0;
-				//else if (cellPoint.y > MAPSIZE-1) cellPoint.y = MAPSIZE-1;
-
-				if (demoMap[(int)cellPoint.y / cSize][(int)cellPoint.x / cSize] == 1) {
-						SDL_SetRenderDrawColor(renderer, 0x00, 0xCC, 0x00, 0xFF);
-
-						SDL_RenderLine(renderer, 
-										pos.x, pos.y, 
-										cellPoint.x, cellPoint.y);
-
-						continue;
-				}
-				
-				/*
 				for (int d = 1; d< renderDistance + 1; d++){
-						cellPoint.x += Xa;
-						cellPoint.y += Ya;
+						outOfBoundsVision(hCellPoint);
+						hFound = checkVision(hCellPoint, renderer);
+						if (hFound) break;
 
-						if (cellPoint.x < 0) cellPoint.x = 0;
-						else if (cellPoint.x > MAPSIZE-1) cellPoint.x = MAPSIZE-1;
+						hCellPoint.x += Xa;
+						hCellPoint.y += Ya;
+				}
 
-						if (cellPoint.y < 0) cellPoint.y = 0;
-						else if (cellPoint.y > MAPSIZE-1) cellPoint.y = MAPSIZE-1;
-		
-						if (demoMap[(int)cellPoint.y / cSize][(int)cellPoint.x / cSize] == 1) {
-								SDL_SetRenderDrawColor(renderer, 0x00, 0xCC, 0x00, 0xFF);
-								break;
-						}
+				//SDL_Log("\n\n\n");
+				//SDL_Log("HORZ (Y): [%d, %d]", (int)hCellPoint.x / cSize, (int)hCellPoint.y/cSize);
+
+
+
+				//VERTIALLIALY
+				//
+				if (iAngle > OPI/2 && iAngle < (3*OPI) / 2) {//Ray LEFT
+						Xa = -cSize;
+						vCellPoint.x = (int)(pos.x / cSize) * cSize - OEPSI;
+				}
+				else if (iAngle > (3*OPI) / 2 || iAngle < OPI/2) {
+						Xa = cSize;
+						vCellPoint.x = (int)(pos.x / cSize) * cSize + cSize + OEPSI;
+				} else continue;
+
+
+				vCellPoint.y = pos.y + (vCellPoint.x - pos.x) * tan(iAngle);
+				Ya = Xa * tan(iAngle);
+
+				for (int d = 1; d< renderDistance + 1; d++){
+						outOfBoundsVision(vCellPoint);
+						vFound = checkVision(vCellPoint, renderer);
+						if (vFound) break;
+
+						vCellPoint.x += Xa;
+						vCellPoint.y += Ya;
 				}
 
 
+						float hDistance = CalcDist(hCellPoint, pos);
+						float vDistance = CalcDist(vCellPoint, pos);
+						if (hDistance <= vDistance){
+								if (hFound) {SDL_SetRenderDrawColor(renderer, 0x00, 0x00, 0xFF, 0xFF);
+								//else SDL_SetRenderDrawColor(renderer, 0x00, 0x00, 0x55, 0xFF);
 
-				SDL_RenderLine(renderer, 
-										pos.x, pos.y, 
-										cellPoint.x, cellPoint.y);
-				SDL_Log("%d,%d", (int)cellPoint.x / cSize, (int)cellPoint.y / cSize);
-				*/
+								SDL_RenderLine(renderer, pos.x, pos.y, hCellPoint.x, hCellPoint.y);}
+								continue;
+						} else { 
+								if (vFound) {SDL_SetRenderDrawColor(renderer, 0x00, 0xFF, 0x00, 0xFF);
+								//else SDL_SetRenderDrawColor(renderer, 0x00, 0x55, 0x00, 0xFF);
 
-
-				//for (int d = 1; d < renderDistance + 1; d++){
-
-						//prevRayPoint.x = rayPoint.x;
-						//prevRayPoint.y = rayPoint.y;
-
-						//rayPoint.x = std::cos(i) * (cSize * d) + pos.x;
-						//rayPoint.y = std::sin(i) * (cSize * d) + pos.y;
-
-						/*SDL_SetRenderDrawColor(renderer, 
-										0x22 * d, 
-										0xFF - (0x22 * d), 
-										0x00, 
-										0xFF);
-
-						SDL_RenderLine(renderer, 
-										prevRayPoint.x, prevRayPoint.y, 
-										rayPoint.x, rayPoint.y);
-*/
-
-						//cellPoint.x = (int)(rayPoint.x / cSize);
-						//cellPoint.y = (int)(rayPoint.y / cSize);
-
-						//if (demoMap[cellPoint.x][cellPoint.y] == 1){
-
-
-/*
-						snappedEndPoint.y = (int)(endPoint.y / cSize) * cSize;
-						if (demoMap[snappedEndPoint.y/cSize][(int)endPoint.x/cSize] == 1){
-								SDL_SetRenderDrawColor(renderer, 0xFF, 0xFF, 0xFF, 0xFF);
-								SDL_RenderLine(renderer, pos.x, pos.y, endPoint.x, endPoint.y);
-								break;
-						}else{
-								SDL_SetRenderDrawColor(renderer, 0xFF, 0x00, 0x00, 0xFF);
-								SDL_RenderLine(renderer, pos.x, pos.y, endPoint.x, endPoint.y);
-						}
-						
-*/
-						/*if (std::tan(r) != 0){//UP N DOWN
-						
-						}*/
-/*
-						if ((r > OBSIDIONEPSILON && r < OBSIDIANPI - OBSIDIONEPSILON) ||
-								(r > OBSIDIANPI + OBSIDIONEPSILON && r < 2 * OBSIDIANPI - OBSIDIONEPSILON) ){ //UP N DOWN
-
-
+								SDL_RenderLine(renderer, pos.x, pos.y, vCellPoint.x, vCellPoint.y);}
+								continue;
 						}
 
-*/
 
 
 
-
-
-
-
-
-						/*
-						endPoint.x = std::cos(i) * (cSize * d) + pos.x;
-						endPoint.y = std::sin(i) * (cSize * d ) + pos.y;
-
-						snappedEndPoint.x = (int)((endPoint.x) / cSize) * cSize;
-						snappedEndPoint.y = (int)((endPoint.y) / cSize) * cSize;	
-						
-						if (demoMap[(int)snappedEndPoint.y / cSize][(int)snappedEndPoint.x / cSize] == 1){
-								SDL_SetRenderDrawColor(renderer, 0xFF, 0x00, 0x00, 0xFF);
-								SDL_RenderLine(renderer, pos.x, pos.y, snappedEndPoint.x, snappedEndPoint.y);
-								stop = true;
-								break;
-						}*/
-				//}
-				
-				/*if (!stop){
-						SDL_SetRenderDrawColor(renderer, 0xFF, 0xFF, 0xFF, 0xFF);
-						SDL_RenderLine(renderer, pos.x, pos.y, endPoint.x, endPoint.y);
-		
-				}*/
+				//SDL_RenderLine(renderer, pos.x, pos.y, cellPoint.x, cellPoint.y);
 		}
 
 

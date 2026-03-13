@@ -2,6 +2,7 @@
 #define PLAYER_H
 
 #include <SDL3/SDL.h>
+#include <SDL3/SDL_render.h>
 #include "obsidian.h"
 #include "textureTown.h"
 #include "map.h"
@@ -10,8 +11,8 @@ class Player{
 
 		public:
 				float speed = .10;
-				float r = -OPI/2;
-				int renderDistance = 1;
+				float r = -OPI/2 + OEPSI;
+				int renderDistance = 0;
 				int FOV = 120;
 
 				vec2 inpt;
@@ -27,6 +28,8 @@ class Player{
 				void input(SDL_Event& e);
 				void draw(SDL_Renderer* renderer);
 				void move();
+				void outOfBoundsVision(fvec2& cellPoint);
+				bool checkVision(fvec2& cellPoint, SDL_Renderer* renderer);
 				void vision(SDL_Renderer* renderer);
 				Player();
 				~Player();

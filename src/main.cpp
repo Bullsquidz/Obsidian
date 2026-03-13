@@ -2,9 +2,12 @@
 #include <SDL3/SDL_main.h>
 #include <SDL3_image/SDL_image.h>
 
+#include "obsidian.h"
+#include "timeWizard.h"
+
 #include "textureTown.h"
 #include "cellCity.h"
-#include "obsidian.h"
+
 #include "player.h"
 #include "map.h"
 
