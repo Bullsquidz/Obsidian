@@ -10,10 +10,12 @@
 class Player{
 
 		public:
-				float speed = .10;
+				float speed = .05;
 				float r = -OPI/2 + OEPSI;
-				int renderDistance = 0;
+				int renderDistance = 80;
 				int FOV = 120;
+
+				int numOfColumns = 266;
 
 				vec2 inpt;
 
@@ -31,11 +33,13 @@ class Player{
 				void outOfBoundsVision(fvec2& cellPoint);
 				bool checkVision(fvec2& cellPoint, SDL_Renderer* renderer);
 				void vision(SDL_Renderer* renderer);
+
+				void renderColumn(SDL_Renderer* renderer, fvec2 rayPoint, float distance, int iteration, float shade);
 				Player();
 				~Player();
 
 		private:
-				Texture* texture;
+Texture* texture;
 };
 
 #endif

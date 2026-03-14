@@ -4,8 +4,9 @@
 #include<SDL3/SDL.h>
 #include "cellCity.h"
 
-const int MAPSIZE = 42;
+const int MAPSIZE = 24;
 const int MAPOFFSET = hCSize;
+extern bool showMap;
 
 extern int demoMap[MAPSIZE][MAPSIZE];
 

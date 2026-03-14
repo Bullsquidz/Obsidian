@@ -75,13 +75,14 @@ int main(){
 				SDL_SetRenderDrawColor(renderer, 0, 0, 0, 255);
 				SDL_RenderClear(renderer);
 
-				//2D DRAW
-				drawMap(renderer);
-				player.draw(renderer);
-
 				//RAYCASTER
 				player.vision(renderer);
 
+				//2D DRAW
+				if (showMap){
+						drawMap(renderer);
+						player.draw(renderer);
+				}
 				SDL_RenderPresent(renderer);
 				timeWizard.frameCap();
 		}

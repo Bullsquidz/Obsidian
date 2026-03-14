@@ -1,7 +1,7 @@
-#include "player/player.h"
-#include "map/map.h"
-#include "base/obsidian.h"
-#include "base/timeWizard.h"
+#include "player.h"
+#include "map.h"
+#include "obsidian.h"
+#include "timeWizard.h"
 
 #include <SDL3/SDL_keycode.h>
 #include <SDL3/SDL_rect.h>
@@ -17,9 +17,12 @@ void Player::input(SDL_Event& e){
 						case SDLK_D: inpt.x += 1; break;
 						case SDLK_LEFTBRACKET: renderDistance--; SDL_Log("RD: %d\n", renderDistance); break;
 						case SDLK_RIGHTBRACKET: renderDistance++; SDL_Log("RD: %d\n", renderDistance); break;
-						case SDLK_MINUS: FOV -= 10; break;
-						case SDLK_PLUS: FOV += 10; break;
-				}
+						case SDLK_MINUS: FOV -= 10; SDL_Log("FOV: %d", FOV); break;
+						case SDLK_EQUALS: FOV += 10; SDL_Log("FOV: %d", FOV); break;
+						case SDLK_COMMA: numOfColumns -= 2; SDL_Log("Num of Columns: %d", numOfColumns); break;
+						case SDLK_PERIOD: numOfColumns += 2; SDL_Log("Num of Columns: %d", numOfColumns); break;
+						case SDLK_TAB: showMap = !showMap; break;
+				}	
 		}else if (e.type == SDL_EVENT_KEY_UP && e.key.repeat == 0){
 				switch(e.key.key){	
 						case SDLK_W: inpt.y -= 1; break;
@@ -121,12 +124,18 @@ bool Player::checkVision(fvec2& cellPoint, SDL_Renderer* renderer){
 }
 
 void Player::vision(SDL_Renderer* renderer){
-		
-		float HFV = FOV / 2.0;		
-		double INCTR = OPI/180;
-		
-		//for (float i = r; i < r+1; i++){
-		for (float i = r - HFV * INCTR; i < r + HFV * INCTR; i += INCTR){
+	
+		if (FOV <= 0)
+				return;
+
+		float FOVRadians = FOV * (OPI/180);
+
+		float HFV = FOVRadians/2;
+		double INCTR = FOVRadians/numOfColumns;
+	
+		int rayNum = -1;
+		for (float i = r - HFV/* * INCTR*/; i < r + HFV/* * INCTR*/; i += INCTR){
+				rayNum++;
 				fvec2 hCellPoint; hCellPoint.x = -1; hCellPoint.y = -1;
 				bool hFound = false;
 				fvec2 vCellPoint; vCellPoint.x = -1; vCellPoint.y = -1;
@@ -194,26 +203,41 @@ void Player::vision(SDL_Renderer* renderer){
 						float hDistance = CalcDist(hCellPoint, pos);
 						float vDistance = CalcDist(vCellPoint, pos);
 						if (hDistance <= vDistance){
-								if (hFound) {SDL_SetRenderDrawColor(renderer, 0x00, 0x00, 0xFF, 0xFF);
-								//else SDL_SetRenderDrawColor(renderer, 0x00, 0x00, 0x55, 0xFF);
-
-								SDL_RenderLine(renderer, pos.x, pos.y, hCellPoint.x, hCellPoint.y);}
+								if (hFound && showMap) {
+										SDL_SetRenderDrawColor(renderer, 0x00, 0x00, 0xFF, 0xFF);
+										SDL_RenderLine(renderer, pos.x, pos.y, hCellPoint.x, hCellPoint.y);
+								}
+								renderColumn(renderer, hCellPoint, hDistance, rayNum, 1);
 								continue;
+						
 						} else { 
-								if (vFound) {SDL_SetRenderDrawColor(renderer, 0x00, 0xFF, 0x00, 0xFF);
-								//else SDL_SetRenderDrawColor(renderer, 0x00, 0x55, 0x00, 0xFF);
-
-								SDL_RenderLine(renderer, pos.x, pos.y, vCellPoint.x, vCellPoint.y);}
+								if (vFound && showMap) {
+										SDL_SetRenderDrawColor(renderer, 0x00, 0xFF, 0x00, 0xFF);
+										SDL_RenderLine(renderer, pos.x, pos.y, vCellPoint.x, vCellPoint.y);
+								}
+								renderColumn(renderer, vCellPoint, vDistance, rayNum, 0.5);
 								continue;
 						}
-
-
-
-
-				//SDL_RenderLine(renderer, pos.x, pos.y, cellPoint.x, cellPoint.y);
 		}
+}
 
 
+void Player::renderColumn(SDL_Renderer* renderer, fvec2 rayPoint, float distance, int iteration, float shade){
+		float columnSpace = (float)ScreenWidth / (float)numOfColumns;		
+		float columnHeight = (float)ScreenHeight / (float)distance;
+		//SDL_Log("Distance: %lf", distance);
+
+		double shadow = 1 - distance / (renderDistance / 2);
+		if (shadow < 0) shadow = 0;
+		//SDL_Log("Shadow: %lf", shadow);
+		
+		SDL_FRect column = { (float)iteration * columnSpace , ((float)ScreenHeight / 2) - (columnHeight / 2), columnSpace, columnHeight};
+		
+		float whiteColor = 255 * shade * shadow;
+		if (whiteColor > 255) whiteColor = 255;
+		SDL_SetRenderDrawColor(renderer, whiteColor, whiteColor, whiteColor, 0xFF);
+		
+		SDL_RenderFillRect(renderer, &column);
 }
 
 
