@@ -1,14 +1,14 @@
 SRC := $(shell find src -type f -name '*.cpp')
 HDR := $(shell find src -type d)
 
-VNDR = vendor
-
 INCS = $(addprefix -I, $(HDR)) \
-		-I$(VNDR)/SDL3/include \
-		-I$(VNDR)/SDL3_image/include 
+		-Ilibs/SDL3/include \
+		-Ilibs/SDL3_image/include 
 
-LIBS = -L$(VNDR)/SDL3/lib			-lSDL3 \
-		-L$(VNDR)/SDL3_image/lib 	-lSDL3_image
+LIBS = -Llibs/SDL3/lib			-lSDL3 \
+		-Llibs/SDL3_image/lib 	-lSDL3_image \
+	    -Wl,-rpath,'$$ORIGIN/libs/SDL3/lib' \
+    	-Wl,-rpath,'$$ORIGIN/libs/SDL3_image/lib'
 
 all:
 	g++ $(SRC) -o a $(INCS) $(LIBS) -o a
@@ -17,4 +17,3 @@ clean:
 	rm -f *.o
 	rm -f src/**/*.o
 	rm -f a
-	make

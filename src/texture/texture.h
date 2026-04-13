@@ -2,7 +2,7 @@
 #define TEXTURE_H
 
 #include <string>
-#include <SDL3_image/SDL_image.h>
+#include <SDL_image.h>
 
 class Texture{
 	public:
