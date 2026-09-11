@@ -10,8 +10,15 @@ LIBS = -Llibs/SDL3/lib			-lSDL3 \
 	    -Wl,-rpath,'$$ORIGIN/libs/SDL3/lib' \
     	-Wl,-rpath,'$$ORIGIN/libs/SDL3_image/lib'
 
-all:
-	g++ $(SRC) -o a $(INCS) $(LIBS) -o a
+
+WLIBS = -Llibs/SDL3/win_lib -lmingw32 -lSDL3 -lSDL3_image \
+            -Llibs/SDL3_image/win_lib -mwindows
+
+linux:
+	g++ $(SRC) -o a $(INCS) $(LIBS)
+
+windows:
+	x86_64-w64-mingw32-g++ $(SRC) -o o.exe $(INCS) $(WLIBS)
 
 clean:
 	rm -f *.o
